@@ -51,10 +51,12 @@ where
 mod tests {
     use std::u128;
 
+    use crate::balances::Pallet;
+
 
     #[test]
     fn init_balance() {
-        let mut balances = super::Pallet::new();
+        let mut balances: Pallet<String, u128> = super::Pallet::new();
         assert_eq!(balances.balance(&"alice".to_string()), 0);
         balances.set_balance(&"alice".to_string(), 100);
         assert_eq!(balances.balance(&"alice".to_string()), 100);
@@ -65,7 +67,7 @@ mod tests {
     fn transfer_balance() {
         let alice = "alice".to_string();
         let bob = "bob".to_string();
-        let mut balances = super::Pallet::new();
+        let mut balances: Pallet<String, u128> = super::Pallet::new();
         balances.set_balance(&alice, 100);
         let _ = balances.transfer(&alice, &bob, 50);
         assert_eq!(balances.balance(&alice), 50);
@@ -76,7 +78,7 @@ mod tests {
     fn transfer_balance_insufficient() {
         let alice = "alice".to_string();
         let bob = "bob".to_string();
-        let mut balances = super::Pallet::new();
+        let mut balances: Pallet<String, u128> = super::Pallet::new();
         balances.set_balance(&alice, 100);
         let result = balances.transfer(&alice, &bob, 110);
         assert_eq!(result, Err("Insufficient balance"));
@@ -84,13 +86,11 @@ mod tests {
         assert_eq!(balances.balance(&bob), 0);
     }
 
-    
-
     #[test]
     fn transfer_balance_overflow() {
         let alice = "alice".to_string();
         let bob = "bob".to_string();
-        let mut balances = super::Pallet::new();
+        let mut balances: Pallet<String, u128> = super::Pallet::new();
         balances.set_balance(&alice, 100);
         balances.set_balance(&bob, u128::MAX);
         let result = balances.transfer(&alice, &bob, 10);
