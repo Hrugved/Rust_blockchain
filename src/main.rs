@@ -18,7 +18,7 @@ mod types {
 }
 
 pub enum RuntimeCall {
-    BalanceTransfer { to: types::AccountId, amount: types::Balance }
+    Balances(balances::Call<Runtime>),
 }
 
 impl system::Config for Runtime {
@@ -44,8 +44,8 @@ impl support::Dispatch for Runtime {
 
     fn dispatch(&mut self, caller: Self::Caller, call: Self::Call) -> support::DispatchResult {
         match call {
-            RuntimeCall::BalanceTransfer { to, amount } => {
-                self.balances.transfer(&caller, &to, amount)?;
+            RuntimeCall::Balances(call) => {
+                self.balances.dispatch(caller, call)?;
             }
         }
         Ok(())
@@ -96,11 +96,11 @@ fn main() {
         extrinsics: vec![
             support::Extrinsic {
                 caller: alice.clone(),
-                call: RuntimeCall::BalanceTransfer { to: bob.clone(), amount: 20 }
+                call: RuntimeCall::Balances(balances::Call::Transfer { to: bob.clone(), amount: 20 })
             },
             support::Extrinsic {
                 caller: bob.clone(),
-                call: RuntimeCall::BalanceTransfer { to: charlie.clone(), amount: 10 }
+                call: RuntimeCall::Balances(balances::Call::Transfer { to: charlie.clone(), amount: 10 })
             },
         ],
     };
