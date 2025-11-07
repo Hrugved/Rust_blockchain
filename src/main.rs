@@ -1,4 +1,4 @@
-use crate::support::Dispatch;
+use crate::{support::{Dispatch, Extrinsic}, types::BlockNumber};
 
 mod balances;
 mod support;
@@ -61,6 +61,7 @@ impl Runtime {
     }
 
     fn execute_block(&mut self, block: types::Block) -> support::DispatchResult {
+        self.system.inc_block_number();
         if self.system.block_number() != block.header.block_number {
             return Err("Block number mismatch");
         }
@@ -87,20 +88,24 @@ fn main() {
     let charlie = "charlie".to_string();
 
     runtime.balances.set_balance(&alice, 100);
-    runtime.system.inc_block_number();
-    assert_eq!(runtime.system.block_number(), 1);
 
-    runtime.system.inc_nonce(&alice);
-    let _ = runtime
-        .balances
-        .transfer(&alice, &bob, 10)
-        .map_err(|e| println!("Error: {:?}", e));
+    let block_1 = types::Block {
+        header: support::Header {
+            block_number: 1
+        },
+        extrinsics: vec![
+            support::Extrinsic {
+                caller: alice.clone(),
+                call: RuntimeCall::BalanceTransfer { to: bob.clone(), amount: 20 }
+            },
+            support::Extrinsic {
+                caller: bob.clone(),
+                call: RuntimeCall::BalanceTransfer { to: charlie.clone(), amount: 10 }
+            },
+        ],
+    };
 
-    runtime.system.inc_nonce(&alice);
-    let _ = runtime
-        .balances
-        .transfer(&alice, &charlie, 20)
-        .map_err(|e| println!("Error: {:?}", e));
-
+    runtime.execute_block(block_1).expect("wrong block execution");
+    
     println!("{:#?}", runtime);
 }
