@@ -17,7 +17,9 @@ mod types {
     pub type Block = support::Block<Header, Extrinsic>;
 }
 
-pub enum RuntimeCall {}
+pub enum RuntimeCall {
+    BalanceTransfer { to: types::AccountId, amount: types::Balance }
+}
 
 impl system::Config for Runtime {
     type AccountId = String;
@@ -41,7 +43,12 @@ impl support::Dispatch for Runtime {
     type Call = RuntimeCall;
 
     fn dispatch(&mut self, caller: Self::Caller, call: Self::Call) -> support::DispatchResult {
-        unimplemented!();
+        match call {
+            RuntimeCall::BalanceTransfer { to, amount } => {
+                self.balances.transfer(&caller, &to, amount)?;
+            }
+        }
+        Ok(())
     }
 }
 
