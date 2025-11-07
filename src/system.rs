@@ -17,6 +17,10 @@ impl Pallet {
         self.block_number = self.block_number.checked_add(1).expect("Blockchain just crashed due to overflow")
     }
 
+    pub fn block_number(&self) -> u32 {
+        self.block_number
+    }
+
     pub fn inc_nonce(&mut self, who: &String) {
         let curr_nonce = self.nonce.get(who).unwrap_or(&0);
         let new_nonce = curr_nonce.checked_add(1).unwrap_or_else(|| panic!("Nonce overflow for {}", who));
