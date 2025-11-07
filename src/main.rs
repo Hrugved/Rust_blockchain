@@ -1,5 +1,6 @@
 mod balances;
 mod system;
+mod support;
 
 impl system::Config for Runtime {
     type AccountId = String;
