@@ -3,6 +3,7 @@ use crate::{support::{Dispatch, Extrinsic}, types::BlockNumber};
 mod balances;
 mod support;
 mod system;
+mod proof_of_existence;
 
 mod types {
     use crate::support;
